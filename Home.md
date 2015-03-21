@@ -1,9 +1,9 @@
 Welcome to the optiboot wiki!<br>
 ##Wiki pages:##
 
-* Installing
-* CompilingOptiboot
-* HowOptibootWorks
+* [[Installing]]
+* [[CompilingOptiboot]]
+* [[HowOptibootWorks]]
 
-* AddingOptibootChipsToIde
-* GoodQuestions - Frequently asked technical questions
+* [[AddingOptibootChipsToIde]]
+* [[GoodQuestions]] - Frequently asked technical questions

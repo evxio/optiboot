@@ -38,7 +38,7 @@ All other commands will result in a success response if they are immediate follo
 ## Space Saving Techniques ##
 In order to save space, Optiboot utilizes a couple of techniques that may be of general interest:
 
-  * The Vector table are normal startup code are omitted by using linker options "-nostdlib -nostartfiles"
+  * The Vector table and normal startup code are omitted by using linker options "-nostdlib -nostartfiles"
   * This requires that main() be declared with attribute OS\_main and manually placed in the .init9 section.
   * and thus main() has to initialize the known-zero register (r1) and SP on chips that don't automatically set SP to end-of-ram.
   * inlining of functions is carefully controlled.
