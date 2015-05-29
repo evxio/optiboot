@@ -346,7 +346,7 @@ typedef uint8_t pagelen_t;
  * generate any entry or exit code itself (but unlike 'naked', it doesn't
  * supress some compile-time options we want.)
  */
-
+void pre_main(void) __attribute__ ((naked)) __attribute__ ((section (".init8")));
 int main(void) __attribute__ ((OS_main)) __attribute__ ((section (".init9")));
 
 void __attribute__((noinline)) putch(char);
@@ -365,7 +365,7 @@ static inline void read_mem(uint8_t memtype,
 #ifdef SOFT_UART
 void uartDelay() __attribute__ ((naked));
 #endif
-void appStart(uint8_t rstFlags) __attribute__ ((naked));
+void appStart(void) __attribute__ ((naked));
 
 /*
  * RAMSTART should be self-explanatory.  It's bigger on parts with a
@@ -436,6 +436,38 @@ void appStart(uint8_t rstFlags) __attribute__ ((naked));
 #define appstart_vec (0)
 #endif // VIRTUAL_BOOT_PARTITION
 
+/* everything that needs to run VERY early */
+void pre_main(void) {
+  // MCUSR stuff
+  // Check for reset reason:
+  // 1. Is it power-on or brown out? -> (r)jmp application
+  // 2. Is it watchdog? -> 
+  //    2.1 Is it application wdt? -> (r)jmp application
+  //    2.2 Is it from bootloader? -> clear MCUSR to not confuse application -> (r)jmp application
+  // 3. Is it reset? -> bootloader requested
+  
+  // r2 register used as temp, side effect - backward compatibility :-)
+  asm volatile (
+    "	clr	__zero_reg__\n"	//C needs it, also in this section in one part, so it's here
+    "	in	r2,%[mcusr]\n"	//get mcusr into r2
+    "	sbrc	r2,%[porf]\n"	//check for power on
+    "	rjmp	appStart\n"	//  -> appStart
+    "	sbrc	r2,%[borf]\n"	//check for brown out
+    "	rjmp	appStart\n"	//  -> appStart
+    "	sbrs	r2,%[wdrf]\n"	//check for watchdog
+    "	rjmp	1f\n"
+    "	sbrc	r2,%[extrf]\n"	//  check if EXTRF is also set (wdr from bootloader)
+    "	out	%[mcusr],__zero_reg__\n"  // if set -> clear mcusr -> appStart
+    "	rjmp	appStart\n"
+    "1:\n"
+    :
+    :
+    [mcusr] "I" (_SFR_IO_ADDR(MCUSR)),
+    [porf] "I" (PORF),
+    [borf] "I" (BORF),
+    [wdrf] "I" (WDRF),
+    [extrf] "I" (EXTRF));
+}
 
 /* main program starts here */
 int main(void) {
@@ -459,21 +491,9 @@ int main(void) {
   //
   // If not, uncomment the following instructions:
   // cli();
-  asm volatile ("clr __zero_reg__");
 #if defined(__AVR_ATmega8__) || defined (__AVR_ATmega32__)
   SP=RAMEND;  // This is done by hardware reset
 #endif
-
-  /*
-   * modified Adaboot no-wait mod.
-   * Pass the reset reason to app.  Also, it appears that an Uno poweron
-   * can leave multiple reset flags set; we only want the bootloader to
-   * run on an 'external reset only' status
-   */
-  ch = MCUSR;
-  MCUSR = 0;
-  if (ch & (_BV(WDRF) | _BV(BORF) | _BV(PORF)))
-      appStart(ch);
 
 #if LED_START_FLASHES > 0
   // Set up Timer 1 for timeout counter
@@ -829,11 +849,7 @@ void watchdogConfig(uint8_t x) {
   WDTCSR = x;
 }
 
-void appStart(uint8_t rstFlags) {
-  // save the reset flags in the designated register
-  //  This can be saved in a main program by putting code in .init0 (which
-  //  executes before normal c init code) to save R2 to a global variable.
-  __asm__ __volatile__ ("mov r2, %0\n" :: "r" (rstFlags));
+void appStart(void) {
 
   watchdogConfig(WATCHDOG_OFF);
   // Note that appstart_vec is defined so that this works with either
