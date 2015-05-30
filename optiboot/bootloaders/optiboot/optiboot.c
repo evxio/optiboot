@@ -361,6 +361,7 @@ static inline void writebuffer(int8_t memtype, uint8_t *mybuff,
 			       uint16_t address, pagelen_t len);
 static inline void read_mem(uint8_t memtype,
 			    uint16_t address, pagelen_t len);
+static void __attribute((noinline)) do_spm(uint16_t address, uint8_t command, uint16_t data);
 
 #ifdef SOFT_UART
 void uartDelay() __attribute__ ((naked));
@@ -885,8 +886,8 @@ static inline void writebuffer(int8_t memtype, uint8_t *mybuff,
 	     * the serial link, but the performance improvement was slight,
 	     * and we needed the space back.
 	     */
-	    __boot_page_erase_short((uint16_t)(void*)address);
-	    boot_spm_busy_wait();
+	    // SPM_HERE
+	    do_spm((uint16_t)(void*)address,__BOOT_PAGE_ERASE,0);
 
 	    /*
 	     * Copy data from the buffer into the flash write buffer.
@@ -895,19 +896,16 @@ static inline void writebuffer(int8_t memtype, uint8_t *mybuff,
 		uint16_t a;
 		a = *bufPtr++;
 		a |= (*bufPtr++) << 8;
-		__boot_page_fill_short((uint16_t)(void*)addrPtr,a);
+		// SPM_HERE
+		do_spm((uint16_t)(void*)addrPtr,__BOOT_PAGE_FILL,a);
 		addrPtr += 2;
 	    } while (len -= 2);
 
 	    /*
 	     * Actually Write the buffer to flash (and wait for it to finish.)
 	     */
-	    __boot_page_write_short((uint16_t)(void*)address);
-	    boot_spm_busy_wait();
-#if defined(RWWSRE)
-	    // Reenable read access to flash
-	    boot_rww_enable();
-#endif
+	    // SPM_HERE
+	    do_spm((uint16_t)(void*)address,__BOOT_PAGE_WRITE,0);
 	} // default block
 	break;
     } // switch
@@ -951,4 +949,26 @@ static inline void read_mem(uint8_t memtype, uint16_t address, pagelen_t length)
 	} while (--length);
 	break;
     } // switch
+}
+
+static void do_spm(uint16_t address, uint8_t command, uint16_t data) {
+    asm volatile (
+	"    movw  r0, %3\n"
+        "    out %0, %1\n"
+        "    spm\n"
+        "    clr  r1\n"
+        :
+        : "i" (_SFR_IO_ADDR(__SPM_REG)),
+          "r" ((uint8_t)command),
+          "z" ((uint16_t)address),
+          "r" ((uint16_t)data)
+        : "r0"
+    );
+    if (command != __BOOT_PAGE_FILL)
+      boot_spm_busy_wait();
+#if defined(RWWSRE)
+    if (command == __BOOT_PAGE_WRITE)
+      // Reenable read access to flash
+      boot_rww_enable();
+#endif
 }
