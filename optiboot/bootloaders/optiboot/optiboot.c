@@ -440,31 +440,27 @@ void appStart(void) __attribute__ ((naked));
 void pre_main(void) {
   // MCUSR stuff
   // Check for reset reason:
-  // 1. Is it power-on or brown out? -> (r)jmp application
-  // 2. Is it watchdog? -> 
-  //    2.1 Is it application wdt? -> (r)jmp application
-  //    2.2 Is it from bootloader? -> clear MCUSR to not confuse application -> (r)jmp application
-  // 3. Is it reset? -> bootloader requested
+  // 1. Is it watchdog? -> 
+  //    1.1 Is it application wdt (EXTRF cleared)? -> (r)jmp application
+  //    1.2 Is it from bootloader? -> clear MCUSR to not confuse application -> (r)jmp application
+  // 2. Is it external reset? -> bootloader requested
+  // 3. Everything else -> (r)jmp application
   
   // r2 register used as temp, side effect - backward compatibility :-)
   asm volatile (
     "	clr	__zero_reg__\n"	//C needs it, also in this section in one part, so it's here
     "	in	r2,%[mcusr]\n"	//get mcusr into r2
-    "	sbrc	r2,%[porf]\n"	//check for power on
-    "	rjmp	appStart\n"	//  -> appStart
-    "	sbrc	r2,%[borf]\n"	//check for brown out
-    "	rjmp	appStart\n"	//  -> appStart
     "	sbrs	r2,%[wdrf]\n"	//check for watchdog
     "	rjmp	1f\n"
     "	sbrc	r2,%[extrf]\n"	//  check if EXTRF is also set (wdr from bootloader)
     "	out	%[mcusr],__zero_reg__\n"  // if set -> clear mcusr -> appStart
     "	rjmp	appStart\n"
     "1:\n"
+    "	sbrs	r2,%[extrf]\n"	//check for external reset
+    "	rjmp	appStart\n"	//  if not, run application
     :
     :
     [mcusr] "I" (_SFR_IO_ADDR(MCUSR)),
-    [porf] "I" (PORF),
-    [borf] "I" (BORF),
     [wdrf] "I" (WDRF),
     [extrf] "I" (EXTRF));
 }
