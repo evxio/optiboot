@@ -347,6 +347,7 @@ typedef uint8_t pagelen_t;
  * supress some compile-time options we want.)
  */
 
+void pre_main(void) __attribute__ ((naked)) __attribute__ ((section (".init8")));
 int main(void) __attribute__ ((OS_main)) __attribute__ ((section (".init9")));
 
 void __attribute__((noinline)) putch(char);
@@ -412,6 +413,18 @@ void appStart(uint8_t rstFlags) __attribute__ ((naked));
 #else
 #define appstart_vec (0)
 #endif // VIRTUAL_BOOT_PARTITION
+
+/* everything that needs to run VERY early */
+void pre_main(void) {
+  // Allow convinient way of calling do_spm function - jump table,
+  //   so entry to this function will always be here, indepedent of compilation,
+  //   features etc
+  asm volatile (
+    "	rjmp	1f\n"
+    "	rjmp	do_spm\n"
+    "1:\n"
+  );
+}
 
 
 /* main program starts here */
