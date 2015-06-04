@@ -14,3 +14,34 @@ In all cases, Optiboot compiles directly from the command line using "make", rat
   * Local Development Environment - you have WinAVR (on Windows), CrossPack (on Mac), or an avr-gcc package (linux) installed on your system, with appropriate development tools somewhere in your path.
   * You have Arduino installed, and are trying to compile Optiboot from its home directory within the Arduino directory structure (hardware/arduino/bootloaders/optiboot/)  The Arduino app includes a pretty complete set of compiler tools, and these can be used to compile optiboot without installing a separate toolchain.
   * You have downloaded the Arduino Source code, which also includes (binary) copies of avr-gcc toolchains, and a source directory containing the Optiboot source code.
+
+
+# Compile Options #
+
+The Optiboot build procedure has been set up to allow a large set of customization options.  The general format of a build command is:
+
+~~~~
+make <options> <platform>
+~~~~
+Where <platform> is one of the named chips or boards implemented as normal targets in the makefile (ie "atmega328".) (the order may be reversed.) The implemented <options> include:
+
+  * AVR_FREQ=nnnnnn  --  Use CPU frequency as specified (default: target dependent, but usually 16000000L)
+  * BAUD_RATE=nnnnn  --  Use an alternate bitrate (default: usually 115200)
+  * LED\_START\_FLASHES=n  -- number of flashes to emit when the bootloader executes (default 3)
+  * BIGBOOT -- include extra features that cause the bootloader to grow to between 512 and 1024 bytes.
+  * SOFT_UART  --  use a bit-banged Software Uart.  Required for chips without a HW UART.
+  * LED\_DATA\_FLASH  -- flash the LED in the data receive function as well as at bootloader startup.
+  * LED=\<portpin\>  --  Like "LED=B5" or "LED=L5"
+  * SINGLESPEED
+  * UART=n  -- user UARTn instead of UART0.
+
+For example:
+
+~~~~
+make UART=1 LED=A7 AVR_FREQ=20000000L atmega1284
+~~~~
+Note that many of the board-level targets are implemented using a recursive invocation of make using this options.  For exmaple, the "pro20" target ends up being:
+
+~~~~
+ make atmega168 AVR_FREQ=20000000L LED_START_FLASHES=3
+~~~~
