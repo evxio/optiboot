@@ -440,29 +440,29 @@ void appStart(void) __attribute__ ((naked));
 void pre_main(void) {
   // MCUSR stuff
   // Check for reset reason:
-  // 1. Is it watchdog? -> 
-  //    1.1 Is it application wdt (EXTRF cleared)? -> (r)jmp application
-  //    1.2 Is it from bootloader? -> clear MCUSR to not confuse application -> (r)jmp application
-  // 2. Is it external reset? -> bootloader requested
-  // 3. Everything else -> (r)jmp application
-  
+  // 1. Is it external reset? -> if no, run application code
+  // 2. Check for WDRF -> if no, run bootloader
   // r2 register used as temp, side effect - backward compatibility :-)
   asm volatile (
-    "	clr	__zero_reg__\n"	//C needs it, also in this section in one part, so it's here
+    "	clr	__zero_reg__\n"	//C needs it anyway
     "	in	r2,%[mcusr]\n"	//get mcusr into r2
-    "	sbrs	r2,%[wdrf]\n"	//check for watchdog
-    "	rjmp	1f\n"
-    "	sbrc	r2,%[extrf]\n"	//  check if EXTRF is also set (wdr from bootloader)
-    "	out	%[mcusr],__zero_reg__\n"  // if set -> clear mcusr -> appStart
+    "   ldi	r16,(1<<%[wdrf])|(1<<%[extrf])\n"
+    "	and	r16,r2\n"
+    "	cpi	r16,(1<<%[extrf])\n"
+    "   brne	1f\n"
+    "	sbrc	r2,%[extrf]\n"	//check for EXTRF
+    "	rjmp	appStart\n"	//  if not set -> appStart
+    "	ldi	r16,~(1<<%[wdrf])\n"	//if yes -> clear WDRF flag -> appStart
+    "   and	r16,r2\n"
+    "	out	%[mcusr],r16\n" 
     "	rjmp	appStart\n"
     "1:\n"
-    "	sbrs	r2,%[extrf]\n"	//check for external reset
-    "	rjmp	appStart\n"	//  if not, run application
     :
     :
     [mcusr] "I" (_SFR_IO_ADDR(MCUSR)),
     [wdrf] "I" (WDRF),
-    [extrf] "I" (EXTRF));
+    [extrf] "I" (EXTRF)
+    );
 }
 
 /* main program starts here */
