@@ -1,7 +1,7 @@
 Welcome to the optiboot wiki!<br>
 ##Wiki pages:##
 
-* [[Installing]]
+* [[InstallingOnChips]] - loading Optiboot onto chips, using various tools.
 * [[CompilingOptiboot]]
 * [[HowOptibootWorks]]
 * [[AddingOptibootChipsToIde]]
