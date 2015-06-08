@@ -899,7 +899,6 @@ static inline void writebuffer(int8_t memtype, uint8_t *mybuff,
 	     * the serial link, but the performance improvement was slight,
 	     * and we needed the space back.
 	     */
-	    // SPM_HERE
 	    do_spm((uint16_t)(void*)address,__BOOT_PAGE_ERASE,0);
 
 	    /*
@@ -909,7 +908,6 @@ static inline void writebuffer(int8_t memtype, uint8_t *mybuff,
 		uint16_t a;
 		a = *bufPtr++;
 		a |= (*bufPtr++) << 8;
-		// SPM_HERE
 		do_spm((uint16_t)(void*)addrPtr,__BOOT_PAGE_FILL,a);
 		addrPtr += 2;
 	    } while (len -= 2);
@@ -917,7 +915,6 @@ static inline void writebuffer(int8_t memtype, uint8_t *mybuff,
 	    /*
 	     * Actually Write the buffer to flash (and wait for it to finish.)
 	     */
-	    // SPM_HERE
 	    do_spm((uint16_t)(void*)address,__BOOT_PAGE_WRITE,0);
 	} // default block
 	break;
@@ -977,11 +974,11 @@ static void do_spm(uint16_t address, uint8_t command, uint16_t data) {
           "r" ((uint16_t)data)
         : "r0"
     );
-    if (command != __BOOT_PAGE_FILL)
-      boot_spm_busy_wait();
+    boot_spm_busy_wait(); // wait for spm to complete
 #if defined(RWWSRE)
-    if (command == __BOOT_PAGE_WRITE)
+    if (command == __BOOT_PAGE_WRITE || command == __BOOT_PAGE_ERASE) {
       // Reenable read access to flash
       boot_rww_enable();
+    }
 #endif
 }
