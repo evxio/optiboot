@@ -67,7 +67,7 @@ void setup() {
       i++;
     }
   }
-  Serial.println("All chars received");
+  Serial.println("\nAll chars received");
   delay(100); // wait for sending all text via serial
   
   // Erasing FLASH page
