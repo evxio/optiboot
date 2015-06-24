@@ -7,3 +7,4 @@ Welcome to the optiboot wiki!<br>
 * [[AddingOptibootChipsToIde]]
 * [[GoodQuestions]] - Frequently asked technical questions
 * [[OtherVersions]] - 3rd party optiboot derivatives with interesting features.
+* [[Virtual-Boot-Partition]] - more about Virtual Boot Partition
