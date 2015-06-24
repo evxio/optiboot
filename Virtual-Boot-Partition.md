@@ -29,6 +29,14 @@
     ... ;your code here
   ~~~~
 
+  1. I want to add VBP to chip XXX
+
+ Check Makefile targets **virboot8**, **virboot328** or **attiny84** for examples.
+ 
+ There are 2 things required:
+ * add `-DVIRTUAL_BOOT_PARTITION` to CFLAGS
+ * adjust (decrease) address in **.text** part of LDSECTIONS (for example in `--section-start=.text=0x1c00`) to fit larger bootloader in memory
+
   1. Any downsides of this feature?
 
  Sadly, there are 2 of them:
