@@ -33,4 +33,4 @@
 
  Sadly, there are 2 of them:
  * Bootloader code is larger and doesn't fit in 512B
- * It requres one unused vector to store original jump to application. And you must be sure that this vector will be unused by applications loader by Optiboot with VBP enabled.
+ * It requres one unused vector to store original jump to application. And you must be sure that this vector will be unused by applications loaded by Optiboot with VBP enabled.
