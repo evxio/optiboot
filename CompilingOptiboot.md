@@ -9,7 +9,7 @@ This will require some relatively deep knowledge of avr-gcc, Atmel AVR hardware 
 
 Optiboot is designed to be compiled with the same version of avr-gcc that is distributed with the Arduino environment: 4.3.2.  This is actually quite an old version of gcc; some effort has been made to allow the compile to procede with new versions of the compiler.  However, since Optiboot MUST compile to a total size of less than 512 bytes, it is very sensitive to changes in the way the compiler does optimizations, or the way it processes optimization options on the compile command.
 
-In all cases, Optiboot compiles directly from the command line using "make", rather than from within any IDE.  It is currently designed to used compilers installed in one of three different places:
+In all cases, Optiboot compiles directly from the command line using "make" (WARNING: some targets doesn't compile with "make" 3.81 or 3.82 due to bug in it), rather than from within any IDE.  It is currently designed to used compilers installed in one of three different places:
 
   * Local Development Environment - you have WinAVR (on Windows), CrossPack (on Mac), or an avr-gcc package (linux) installed on your system, with appropriate development tools somewhere in your path.
   * You have Arduino installed, and are trying to compile Optiboot from its home directory within the Arduino directory structure (hardware/arduino/bootloaders/optiboot/)  The Arduino app includes a pretty complete set of compiler tools, and these can be used to compile optiboot without installing a separate toolchain.
