@@ -562,9 +562,31 @@ int main(void) {
       verifySpace();
     }
     else if(ch == STK_UNIVERSAL) {
-      // UNIVERSAL command is ignored
+#if FLASHEND < 131072
+     // UNIVERSAL command is ignored
       getNch(4);
       putch(0x00);
+#else
+      // LOAD_EXTENDED_ADDRESS is needed in STK_UNIVERSAL for addressing of more than 128kB
+      uint8_t hi_addr;
+      hi_addr = getch();
+      if ( hi_addr == LOAD_EXT_ADDR) {
+        // get address
+        getch();  // get '0'
+        hi_addr = getch();  // get high bits of address
+        RAMPZ = (RAMPZ & 0x01) | ((hi_addr << 1) & 0xff);  // put it in RAPMZ
+        getNch(1); // get last '0'
+        // response
+        putch(STK_INSYNC);
+        putch(0); //response??
+        putch(STK_OK);
+      }
+      else {
+        // anything except LOAD_EXT_ADDR is ignored
+        getNch(3);
+        putch(0x00);
+      }
+#endif
     }
     /* Write memory, length is big endian and is in bytes */
     else if(ch == STK_PROG_PAGE) {
