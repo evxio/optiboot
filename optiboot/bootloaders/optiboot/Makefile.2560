@@ -11,7 +11,7 @@ atmega2560: TARGET = atmega2560
 atmega2560: MCU_TARGET = atmega2560
 atmega2560: CFLAGS += $(COMMON_OPTIONS) -DBIGBOOT
 atmega2560: AVR_FREQ ?= 16000000L
-atmega2560: LDSECTIONS  = -Wl,--section-start=.text=0xfc00 -Wl,--section-start=.version=0x3fffe
+atmega2560: LDSECTIONS  = -Wl,--section-start=.text=0x3fc00 -Wl,--section-start=.version=0x3fffe
 atmega2560: CFLAGS += $(UART_CMD)
 atmega2560: $(PROGRAM)_atmega2560.hex
 atmega2560: $(PROGRAM)_atmega2560.lst
@@ -21,7 +21,7 @@ atmega2560p: atmega256
 atmega2560_isp: atmega2560
 atmega2560_isp: TARGET = atmega2560
 atmega2560_isp: MCU_TARGET = atmega2560
-# 1024 byte boot
+# 1024 byte boot, JTAG disabled
 atmega2560_isp: HFUSE ?= DE
 # Full Swing xtal (16MHz) 16KCK/14CK+65ms
 atmega2560_isp: LFUSE ?= F7
@@ -35,21 +35,21 @@ atmega2560_isp: isp
 
 # Arduino/Geniuno MEGA 256 has a minimum boot size of 1024 bytes, so enable extra functions
 #
-mega256: TARGET = $@
-mega256: CHIP = atmega2560
-mega256:
-	$(MAKE) $(CHIP) AVR_FREQ=16000000L LED=B0
+mega2560: TARGET = $@
+mega2560: CHIP = atmega2560
+mega2560:
+	$(MAKE) $(CHIP) AVR_FREQ=16000000L
 	mv $(PROGRAM)_$(CHIP).hex $(PROGRAM)_$(TARGET).hex
 	mv $(PROGRAM)_$(CHIP).lst $(PROGRAM)_$(TARGET).lst
 
-mega256_isp: mega256
-mega256_isp: TARGET = mega256
-mega256_isp: MCU_TARGET = atmega2560
-# 1024 byte boot
-mega256_isp: HFUSE ?= DE
+mega2560_isp: mega256
+mega2560_isp: TARGET = mega2560
+mega2560_isp: MCU_TARGET = atmega2560
+# 1024 byte boot, JTAG disabled
+mega2560_isp: HFUSE ?= DE
 # Full swing xtal (16MHz) 16KCK/14CK+65ms
-mega256_isp: LFUSE ?= F7
+mega2560_isp: LFUSE ?= F7
 # 2.7V brownout
-mega256_isp: EFUSE ?= FD
-mega256_isp: isp
+mega2560_isp: EFUSE ?= FD
+mega2560_isp: isp
 
