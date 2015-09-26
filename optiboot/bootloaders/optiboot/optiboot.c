@@ -568,13 +568,10 @@ int main(void) {
       putch(0x00);
 #else
       // LOAD_EXTENDED_ADDRESS is needed in STK_UNIVERSAL for addressing of more than 128kB
-      uint8_t hi_addr;
-      hi_addr = getch();
-      if ( hi_addr == LOAD_EXT_ADDR) {
+      if ( AVR_OP_LOAD_EXT_ADDR == getch() ) {
         // get address
         getch();  // get '0'
-        hi_addr = getch();  // get high bits of address
-        RAMPZ = (RAMPZ & 0x01) | ((hi_addr << 1) & 0xff);  // put it in RAPMZ
+        RAMPZ = (RAMPZ & 0x01) | ((getch() << 1) & 0xff);  // get address and put it in RAPMZ
         getNch(1); // get last '0'
         // response
         putch(STK_INSYNC);
