@@ -554,19 +554,21 @@ int main(void) {
       newAddress = getch();
       newAddress = (newAddress & 0xff) | (getch() << 8);
 #ifdef RAMPZ
-      // Transfer top bit to RAMPZ
-      RAMPZ = (newAddress & 0x8000) ? 1 : 0;
+      // Transfer top bit to LSB in RAMPZ
+      //RAMPZ = (newAddress & 0x8000) ? 1 : 0; <- it kills other bits in rampz!!
+      if (newAddress & 0x8000) {
+        RAMPZ |= 0x01;
+      }
+      else {
+        RAMPZ &= 0xFE;
+      }
 #endif
       newAddress += newAddress; // Convert from word address to byte address
       address = newAddress;
       verifySpace();
     }
     else if(ch == STK_UNIVERSAL) {
-#if FLASHEND < 131072
-     // UNIVERSAL command is ignored
-      getNch(4);
-      putch(0x00);
-#else
+#ifdef RAMPZ
       // LOAD_EXTENDED_ADDRESS is needed in STK_UNIVERSAL for addressing of more than 128kB
       if ( AVR_OP_LOAD_EXT_ADDR == getch() ) {
         // get address
@@ -574,15 +576,17 @@ int main(void) {
         RAMPZ = (RAMPZ & 0x01) | ((getch() << 1) & 0xff);  // get address and put it in RAPMZ
         getNch(1); // get last '0'
         // response
-        putch(STK_INSYNC);
-        putch(0); //response??
-        putch(STK_OK);
+        putch(0x00);
       }
       else {
         // anything except LOAD_EXT_ADDR is ignored
         getNch(3);
         putch(0x00);
       }
+#else
+      // UNIVERSAL command is ignored
+      getNch(4);
+      putch(0x00);
 #endif
     }
     /* Write memory, length is big endian and is in bytes */
