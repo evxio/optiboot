@@ -555,7 +555,6 @@ int main(void) {
       newAddress = (newAddress & 0xff) | (getch() << 8);
 #ifdef RAMPZ
       // Transfer top bit to LSB in RAMPZ
-      //RAMPZ = (newAddress & 0x8000) ? 1 : 0; <- it kills other bits in rampz!!
       if (newAddress & 0x8000) {
         RAMPZ |= 0x01;
       }
@@ -569,7 +568,7 @@ int main(void) {
     }
     else if(ch == STK_UNIVERSAL) {
 #ifdef RAMPZ
-      // LOAD_EXTENDED_ADDRESS is needed in STK_UNIVERSAL for addressing of more than 128kB
+      // LOAD_EXTENDED_ADDRESS is needed in STK_UNIVERSAL for addressing more than 128kB
       if ( AVR_OP_LOAD_EXT_ADDR == getch() ) {
         // get address
         getch();  // get '0'
@@ -579,7 +578,7 @@ int main(void) {
         putch(0x00);
       }
       else {
-        // anything except LOAD_EXT_ADDR is ignored
+        // everything else is ignored
         getNch(3);
         putch(0x00);
       }

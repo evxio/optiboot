@@ -16,7 +16,6 @@ atmega2560: CFLAGS += $(UART_CMD)
 atmega2560: $(PROGRAM)_atmega2560.hex
 atmega2560: $(PROGRAM)_atmega2560.lst
 
-atmega2560p: atmega256
 
 atmega2560_isp: atmega2560
 atmega2560_isp: TARGET = atmega2560
