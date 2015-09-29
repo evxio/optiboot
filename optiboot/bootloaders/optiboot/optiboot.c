@@ -572,7 +572,7 @@ int main(void) {
       if ( AVR_OP_LOAD_EXT_ADDR == getch() ) {
         // get address
         getch();  // get '0'
-        RAMPZ = (RAMPZ & 0x01) | ((getch() << 1) & 0xff);  // get address and put it in RAPMZ
+        RAMPZ = (RAMPZ & 0x01) | ((getch() << 1) & 0xff);  // get address and put it in RAMPZ
         getNch(1); // get last '0'
         // response
         putch(0x00);
