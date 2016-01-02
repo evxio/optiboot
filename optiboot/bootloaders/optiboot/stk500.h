@@ -45,5 +45,5 @@
 #define STK_SW_MAJOR        0x81  // ' '
 #define STK_SW_MINOR        0x82  // ' '
 
-/* AVR raw commands sent viai STK_UNIVERSAL */
+/* AVR raw commands sent via STK_UNIVERSAL */
 #define AVR_OP_LOAD_EXT_ADDR  0x4d
