@@ -478,7 +478,7 @@ int main(void) {
   // If not, uncomment the following instructions:
   // cli();
   asm volatile ("clr __zero_reg__");
-#if defined(__AVR_ATmega8__) || defined (__AVR_ATmega32__)
+#if defined(__AVR_ATmega8__) || defined (__AVR_ATmega32__) || defined (__AVR_ATmega16__)
   SP=RAMEND;  // This is done by hardware reset
 #endif
 
@@ -489,11 +489,39 @@ int main(void) {
    * Code by MarkG55
    * see discusion in https://github.com/Optiboot/optiboot/issues/97
    */
+#if !defined(__AVR_ATmega16__)
   ch = MCUSR;
+#else
+  ch = MCUCSR;
+#endif
+  // Skip all logic and run bootloader if MCUSR is cleared (application request)
   if (ch != 0) {
-    if ((ch & (_BV(WDRF) | _BV(EXTRF))) != _BV(EXTRF)) { // To run the boot loader, External Reset Flag must be set and the Watchdog Flag MUST be cleared!  Otherwise jump straight to user code.
-      if (ch & _BV(EXTRF)) 
-          MCUSR = ~(_BV(WDRF));  // Clear WDRF because it was actually caused by bootloader
+    /*
+     * To run the boot loader, External Reset Flag must be set.
+     * If not, we could make shortcut and jump directly to application code.
+     * Also WDRF set with EXTRF is a result of Optiboot timeout, so we
+     * shouldn't run bootloader in loop :-) That's why:
+     *  1. application is running if WDRF is cleared
+     *  2. we clear WDRF if it's set with EXTRF to avoid loops
+     * One problematic scenario: broken application code sets watchdog timer 
+     * without clearing MCUSR before and triggers it quickly. But it's
+     * recoverable by power-on with pushed reset button.
+     */
+    if ((ch & (_BV(WDRF) | _BV(EXTRF))) != _BV(EXTRF)) { 
+      if (ch & _BV(EXTRF)) {
+        /*
+         * Clear WDRF because it was most probably set by wdr in bootloader.
+         * It's also needed to avoid loop by broken application which could
+         * prevent entering bootloader.
+         * '&' operation is skipped to spare few bytes as bits in MCUSR
+         * can only be cleared.
+         */
+#if !defined(__AVR_ATmega16__)
+        MCUSR = ~(_BV(WDRF));  
+#else
+        MCUSR = ~(_BV(WDRF));  
+#endif
+      }
       appStart(ch);
     }
   }
@@ -504,7 +532,7 @@ int main(void) {
 #endif
 
 #ifndef SOFT_UART
-#if defined(__AVR_ATmega8__) || defined (__AVR_ATmega32__)
+#if defined(__AVR_ATmega8__) || defined (__AVR_ATmega32__) || defined (__AVR_ATmega16__)
   UCSRA = _BV(U2X); //Double speed mode USART
   UCSRB = _BV(RXEN) | _BV(TXEN);  // enable Rx & Tx
   UCSRC = _BV(URSEL) | _BV(UCSZ1) | _BV(UCSZ0);  // config USART; 8N1
@@ -518,7 +546,7 @@ int main(void) {
 #endif
 
   // Set up watchdog to trigger after 1s
-  watchdogConfig(WATCHDOG_1S);
+  watchdogConfig(WATCHDOG_2S);
 
 #if (LED_START_FLASHES > 0) || defined(LED_DATA_FLASH)
   /* Set LED pin as output */
@@ -752,7 +780,7 @@ uint8_t getch(void) {
   uint8_t ch;
 
 #ifdef LED_DATA_FLASH
-#if defined(__AVR_ATmega8__) || defined (__AVR_ATmega32__)
+#if defined(__AVR_ATmega8__) || defined (__AVR_ATmega32__) || defined (__AVR_ATmega16__)
   LED_PORT ^= _BV(LED);
 #else
   LED_PIN |= _BV(LED);
@@ -803,7 +831,7 @@ uint8_t getch(void) {
 #endif
 
 #ifdef LED_DATA_FLASH
-#if defined(__AVR_ATmega8__) || defined (__AVR_ATmega32__)
+#if defined(__AVR_ATmega8__) || defined (__AVR_ATmega32__) || defined (__AVR_ATmega16__)
   LED_PORT ^= _BV(LED);
 #else
   LED_PIN |= _BV(LED);
@@ -852,7 +880,7 @@ void flash_led(uint8_t count) {
     TCNT1 = -(F_CPU/(1024*16));
     TIFR1 = _BV(TOV1);
     while(!(TIFR1 & _BV(TOV1)));
-#if defined(__AVR_ATmega8__)  || defined (__AVR_ATmega32__)
+#if defined(__AVR_ATmega8__) || defined (__AVR_ATmega32__) || defined (__AVR_ATmega16__)
     LED_PORT ^= _BV(LED);
 #else
     LED_PIN |= _BV(LED);
