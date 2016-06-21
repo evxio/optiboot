@@ -1039,6 +1039,7 @@ static inline void read_mem(uint8_t memtype, uint16_t address, pagelen_t length)
  */
 static void do_spm(uint16_t address, uint8_t command, uint16_t data) {
     // Do spm stuff
+#if !defined(__AVR_ATmega128__)
     asm volatile (
 	"    movw  r0, %3\n"
         "    out %0, %1\n"
@@ -1051,6 +1052,20 @@ static void do_spm(uint16_t address, uint8_t command, uint16_t data) {
           "r" ((uint16_t)data)
         : "r0"
     );
+#else
+    asm volatile (
+	"    movw  r0, %3\n"
+        "    sts %0, %1\n"
+        "    spm\n"
+        "    clr  r1\n"
+        :
+        : "i" (_SFR_MEM_ADDR(__SPM_REG)),
+          "r" ((uint8_t)command),
+          "z" ((uint16_t)address),
+          "r" ((uint16_t)data)
+        : "r0"
+    );
+#endif
 
     // wait for spm to complete
     //   it doesn't have much sense for __BOOT_PAGE_FILL,
@@ -1062,7 +1077,11 @@ static void do_spm(uint16_t address, uint8_t command, uint16_t data) {
     // must be also SELFPRGEN set. If we skip checking this bit, we save here 4B
     if ((command & (_BV(PGWRT)|_BV(PGERS))) && (data == 0) ) {
       // Reenable read access to flash
+#if !defined(__AVR_ATmega128__)
       boot_rww_enable();
+#else
+      __boot_rww_enable();
+#endif
     }
 #endif
 }
