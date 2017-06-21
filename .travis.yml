@@ -46,6 +46,8 @@ env:
     - OPTIBOOT_TARGET=atmega8
     - OPTIBOOT_TARGET=atmega88
     - OPTIBOOT_TARGET=attiny84
+    - OPTIBOOT_TARGET=mega2560
+    - OPTIBOOT_TARGET=atmega2560
 
 matrix:
   allow_failures:
