@@ -1065,7 +1065,7 @@ static void do_spm(uint16_t address, uint8_t command, uint16_t data) {
     // must be also SELFPRGEN set. If we skip checking this bit, we save here 4B
     if ((command & (_BV(PGWRT)|_BV(PGERS))) && (data == 0) ) {
       // Reenable read access to flash
-      boot_rww_enable();
+      optiboot_boot_rww_enable();
     }
 #endif
 }
