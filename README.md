@@ -14,7 +14,7 @@ Optiboot is an easy to install upgrade to the Arduino bootloader within Arduino 
 Optiboot is now installed by default on the Arduino Uno. It can be installed on all older mega8, 168 or 328 based Arduinos.
 
 ## Additional Documentation
-More detailed documentation is being added (slowly) to the [repository wiki](https://github.com/Optiboot/optiboot/wiki).
+More detailed documentation is being added (slowly) to the [docs directory](https://github.com/majekw/optiboot/docs).
 
 ## Notes on IDE Version compatability
 Optiboot is "compatible", in a loose sense, with all versions of the Arduino IDE.  It was originally written at about the same time as v1.0, and has some "quirks" that date back to that timeframe.  Most significantly, install procedures and locations change between releases, and the ability to compile Optiboot using only the tools installed with the IDE broke in the v1.5 timeframe.
@@ -29,7 +29,7 @@ The following instructions are based on using the Arduino "Board Manager", prese
   3. Paste this url into the "Additional Boards Manager URLs" field in the Arduino IDE "Preferences" pane. (Separate it from other URLs that might be present with a comma or click the icon to the right of the field to insert it on a new line.)
   4. After closing the Preferences window, the **Tools/Boards/Boards Manager** menu should include an entry for that version of Optiboot.  Select that entry and click the **Install** button.
 
-For additional installation information, see the [Optiboot AddingOptibootChipsToIde Wiki page] (https://github.com/Optiboot/optiboot/wiki/AddingOptibootChipsToIde)
+For additional installation information, see the [Optiboot AddingOptibootChipsToIde in docs] (https://github.com/majekw/optiboot/docs/AddingOptibootChipsToIde)
 
 
 <!---

@@ -1,4 +1,4 @@
-Welcome to the optiboot wiki!<br>
+Welcome to the Optiboot docs!<br>
 ##Wiki pages:##
 
 * [[InstallingOnChips]] - loading Optiboot onto chips, using various tools.
