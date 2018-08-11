@@ -29,11 +29,19 @@ mkdir -p $LOCAL_TOOLS_DIR
 # get new make as Optiboot requires version >4.0
 download_make4
 
-# download specific Arduino version
-download_arduino $1
+# download specific tools version
+if [ "$1" = "microchip" ]; then
+    download_avr_toolchain
 
-# set search path
-PATH=$LOCAL_TOOLS_DIR/usr/bin:$PATH:$LOCAL_TOOLS_DIR/arduino-$1/hardware/tools/avr/bin
+    # set search path
+    PATH=$LOCAL_TOOLS_DIR/usr/bin:$PATH:$LOCAL_TOOLS_DIR/avr8-gnu-toolchain-linux_x86_64/bin
+    avr-gcc --version
+else
+    download_arduino $1
+
+    # set search path
+    PATH=$LOCAL_TOOLS_DIR/usr/bin:$PATH:$LOCAL_TOOLS_DIR/arduino-$1/hardware/tools/avr/bin
+fi
 
 cd $TRAVIS_BUILD_DIR/optiboot/bootloaders/optiboot
 
