@@ -7,6 +7,10 @@ cache:
     - $HOME/avr-tools    
 install: true
 
+stages:
+  - fill cache
+  - test
+
 env:
   global:
 #    - ARDUINO_VERSION=1.0.6
@@ -52,6 +56,12 @@ matrix:
     - env: OPTIBOOT_TARGET=attiny84
 
 script: scripts/travis-build.sh $ARDUINO_VERSION $OPTIBOOT_TARGET
+
+jobs:
+  include:
+    - stage: fill cache
+      script: scripts/travis-fill-cache.sh
+      env: OPTIBOOT_TARGET=none
 
 notifications:
   email:
