@@ -47,4 +47,5 @@ cd $TRAVIS_BUILD_DIR/optiboot/bootloaders/optiboot
 
 make --version
 make clean
-make $2
+shift
+make $@
