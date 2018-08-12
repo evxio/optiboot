@@ -8,7 +8,7 @@ cache:
 install: true
 
 stages:
-  - fill cache
+  - check sizes
   - test
 
 env:
@@ -46,6 +46,11 @@ env:
     - OPTIBOOT_TARGET=atmega168p
     - OPTIBOOT_TARGET=atmega32
     - OPTIBOOT_TARGET=atmega328
+    - OPTIBOOT_TARGET="atmega328 LED_START_FLASHES=0"
+    - OPTIBOOT_TARGET="atmega328 LED_START_FLASHES=0 SUPPORT_EEPROM=1"
+    - OPTIBOOT_TARGET="atmega328 LED_START_FLASHES=0 LED_START_ON=1 SUPPORT_EEPROM=1"
+    - OPTIBOOT_TARGET="atmega328 SOFT_UART=1"
+    - OPTIBOOT_TARGET="atmega328 BIGBOOT=1"
     - OPTIBOOT_TARGET=atmega328_pro8
     - OPTIBOOT_TARGET=atmega644p
     - OPTIBOOT_TARGET=atmega8
@@ -96,8 +101,8 @@ script: scripts/travis-build.sh $TOOLS_VERSION $OPTIBOOT_TARGET
 
 jobs:
   include:
-    - stage: fill cache
-      script: scripts/travis-fill-cache.sh
+    - stage: check sizes
+      script: scripts/travis-check-sizes.sh
       env: OPTIBOOT_TARGET=none
 
 notifications:
