@@ -76,3 +76,4 @@ echo "========== OUTPUT SIZES END =============="
 echo "Uploading results to TravisJoin"
 curl -H "Content-Type: application/json" --data @$OUTPUT_JSON https://api.travisjoin.w7i.pl/tj/add/$REPO/$BRANCH/$TRAVIS_COMMIT
 
+exit 0
