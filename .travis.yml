@@ -10,7 +10,6 @@ install: true
 stages:
   - check sizes
   - test
-    if: commit_message !~ /ci=onlysizes/
 
 env:
   global:
