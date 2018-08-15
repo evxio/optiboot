@@ -90,6 +90,8 @@ env:
     - OPTIBOOT_TARGET=atmega6490p
     - OPTIBOOT_TARGET=atmega8515
     - OPTIBOOT_TARGET=atmega8535
+    - OPTIBOOT_TARGET=attiny167
+    - OPTIBOOT_TARGET=attiny87
 
 matrix:
   allow_failures:
