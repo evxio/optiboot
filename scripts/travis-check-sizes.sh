@@ -46,7 +46,7 @@ else
 fi
 
 # start json
-echo "{\"slug\":\"$REPO\",\"branch\":\"$BRANCH\",\"commit\":\"$TRAVIS_COMMIT\",\"builds\":[" >"$OUTPUT_JSON"
+echo "{\"slug\":\"$REPO\",\"branch\":\"$BRANCH\",\"commit\":\"$TRAVIS_COMMIT\",\"emoji\":\"false\",\"builds\":[" >"$OUTPUT_JSON"
 
 # build everything
 cat $TRAVIS_BUILD_DIR/.travis.yml|grep "    - OPTIBOOT_TARGET="|cut -f 2- -d '=' \
@@ -72,6 +72,11 @@ echo "]}">>"$OUTPUT_JSON"
 echo "========= OUTPUT SIZES START ============="
 cat "$OUTPUT_TABLE"
 echo "========== OUTPUT SIZES END =============="
+
+echo "Checking results against last commit"
+echo "========= OUTPUT SIZES COMPARE START ============="
+curl -H "Content-Type: application/json" --data @$OUTPUT_JSON https://api.travisjoin.w7i.pl/tj/compare/$REPO/$BRANCH/last
+echo "========== OUTPUT SIZES COMPARE END =============="
 
 echo "Uploading results to TravisJoin"
 curl -H "Content-Type: application/json" --data @$OUTPUT_JSON https://api.travisjoin.w7i.pl/tj/add/$REPO/$BRANCH/$TRAVIS_COMMIT
