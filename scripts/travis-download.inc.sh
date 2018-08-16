@@ -5,7 +5,7 @@ MAKE_PACKAGE=make_4.1-6_amd64.deb
 WGET_FLAGS="--retry-connrefused --tries=3 --timeout=60 --continue"
 
 
-# oownload and unpack package
+# download and unpack package
 function download_arduino()
 {
     cd $LOCAL_TOOLS_DIR

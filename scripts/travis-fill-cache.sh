@@ -12,7 +12,7 @@ LOCAL_TOOLS_DIR=$HOME/avr-tools
 if [ -z "$TRAVIS_BUILD_DIR" ]; then
     echo "This script should be run by Travis-CI environment"
     echo "If you want to simulate Travis build, please set TRAVIS_BUILD_DIR"
-    echo "envirinment variable to directory where your code lives"
+    echo "environment variable to directory where your code lives"
     exit 1
 fi
 
